@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text Converter</title>
+  <!-- Using Google Fonts for a modern look -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Variables for consistency */
+    :root {
+      --primary-bg: #1f1c2c;
+      --secondary-bg: #928dab;
+      --green-bg: linear-gradient(135deg, #008000, #00ff00);
+      --normal-bg: linear-gradient(135deg, var(--primary-bg), var(--secondary-bg));
+      --card-bg: rgba(255, 255, 255, 0.15);
+      --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      --border-radius: 15px;
+      --primary-text: #ffffff;
+      --button-bg: rgba(106, 90, 205, 0.8);
+      --button-hover: rgba(131, 111, 255, 0.9);
+      --dark-bg: #121212;
+      --dark-card-bg: rgba(255, 255, 255, 0.1);
+      --dark-primary-text: #e0e0e0;
+      --dark-button-bg: rgba(106, 90, 205, 0.6);
+      --dark-button-hover: rgba(131, 111, 255, 0.7);
+    }
+
+    /* Global resets and styling */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--normal-bg);
+      color: var(--primary-text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    /* Green mode styling */
+    body.green-mode {
+      background: var(--green-bg);
+      color: #000;
+    }
+
+    /* Dark mode styling */
+    body.dark-mode {
+      background: var(--dark-bg);
+      color: var(--dark-primary-text);
+    }
+
+    body.dark-mode .container {
+      background: var(--dark-card-bg);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    body.dark-mode textarea {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--dark-primary-text);
+    }
+
+    body.dark-mode textarea:focus {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid var(--dark-button-hover);
+      box-shadow: 0 0 10px var(--dark-button-hover);
+      caret-color: var(--dark-primary-text);
+    }
+
+    body.dark-mode #output {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--dark-primary-text);
+    }
+
+    body.dark-mode .futuristic-stick {
+      background: var(--dark-primary-text);
+      box-shadow: 0 0 15px var(--dark-primary-text);
+    }
+
+    body.dark-mode .color-controls input[type="color"] {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--dark-primary-text);
+    }
+
+    body.dark-mode .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top: 4px solid var(--dark-button-hover);
+    }
+
+    body.dark-mode .tagline {
+      color: var(--dark-primary-text);
+    }
+
+    body.dark-mode button {
+      background: var(--dark-button-bg);
+    }
+
+    body.dark-mode button:hover {
+      background: var(--dark-button-hover);
+    }
+
+    body.dark-mode .color-controls {
+      display: none;
+    }
+
+    /* Container with glassmorphism effect */
+    .container {
+      width: 90%;
+      max-width: 600px;
+      padding: 30px;
+      border-radius: var(--border-radius);
+      background: var(--card-bg);
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      text-align: center;
+      transition: background 0.5s ease, color 0.5s ease;
+      margin-top: 20px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+    }
+
+    /* Textarea style */
+    textarea {
+      width: 100%;
+      height: 120px;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      color: var(--primary-text);
+      font-size: 1rem;
+      resize: none;
+      outline: none;
+      margin-bottom: 30px;
+      transition: background 0.3s ease;
+    }
+    
+    textarea:focus {
+      background: rgba(255, 255, 255, 0.3);
+      border: 2px solid var(--button-hover); /* Add border on focus */
+      box-shadow: 0 0 10px var(--button-hover); /* Add shadow on focus */
+      caret-color: var(--primary-text); /* Ensure cursor is visible */
+    }
+
+    /* Button container styles */
+    .btn-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: var(--border-radius);
+      background: var(--button-bg);
+      color: var(--primary-text);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300%;
+      height: 300%;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      transform: translate(-50%, -50%) scale(0);
+      border-radius: 50%;
+    }
+
+    button:hover::before {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    button:hover {
+      background: var(--button-hover);
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Output display */
+    #output {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--border-radius);
+      font-size: 1.1rem;
+      word-break: break-all;
+      min-height: 50px;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #output:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Futuristic stick animation */
+    .futuristic-stick {
+      width: 8px;
+      height: 120px;
+      background: var(--primary-text);
+      margin: 40px auto;
+      border-radius: 4px;
+      box-shadow: 0 0 15px var(--primary-text);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scaleY(1); opacity: 1; }
+      50% { transform: scaleY(1.5); opacity: 0.6; }
+      100% { transform: scaleY(1); opacity: 1; }
+    }
+
+    /* Color grading controls */
+    .color-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .color-controls input[type="color"] {
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .color-controls input[type="color"]:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Loading spinner styles */
+    .spinner {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid var(--button-hover);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .tagline {
+      font-size: 1.2rem;
+      color: var(--secondary-bg);
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    /* Dark mode button styles */
+    .dark-mode-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: var(--border-radius);
+      background: var(--button-bg);
+      color: var(--primary-text);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .dark-mode-btn:hover {
+      background: var(--button-hover);
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* From Uiverse.io by vinodjangid07 */
+    #checkbox {
+      display: none;
+    }
+
+    .toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition-duration: .3s;
+    }
+
+    .bars {
+      width: 100%;
+      height: 4px;
+      background-color: rgb(253, 255, 243);
+      border-radius: 5px;
+      transition-duration: .3s;
+    }
+
+    #checkbox:checked + .toggle #bar2 {
+      transform: translateY(14px) rotate(60deg);
+      margin-left: 0;
+      transform-origin: right;
+      transition-duration: .3s;
+      z-index: 2;
+    }
+
+    #checkbox:checked + .toggle #bar1 {
+      transform: translateY(28px) rotate(-60deg);
+      transition-duration: .3s;
+      transform-origin: left;
+      z-index: 1;
+    }
+
+    #checkbox:checked + .toggle {
+      transform: rotate(-90deg);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Text Converter</h1>
+    <p class="tagline">Enhance your privacy</p>
+    <textarea id="inputText" placeholder="Enter your text here"></textarea>
+    
+    <div class="btn-container">
+      <button id="btnBinary">Convert to Binary</button>
+      <button id="btnEncrypt">Encrypt (Base64)</button>
+      <button id="btnDecrypt">Decrypt (Base64)</button>
+      <button id="btnBinaryToText">Binary to Text</button>
+      <button id="btnCopy">Copy Output</button>
+    </div>
+    
+    <div class="futuristic-stick"></div>
+    
+    <div id="output" placeholder="Output will appear here"></div>
+
+    <div class="color-controls">
+      <input type="color" id="color1" value="#1f1c2c">
+      <input type="color" id="color2" value="#928dab">
+    </div>
+
+    <div class="spinner" id="spinner"></div>
+  </div>
+  
+  <input type="checkbox" id="checkbox">
+  <label class="toggle" for="checkbox">
+    <div class="bars" id="bar1"></div>
+    <div class="bars" id="bar2"></div>
+  </label>
+
+  <script>
+    // State variable to track theme mode
+    let isGreenMode = false;
+
+    // Get references to DOM elements
+    const inputText = document.getElementById("inputText");
+    const outputEl = document.getElementById("output");
+    const btnBinary = document.getElementById("btnBinary");
+    const btnEncrypt = document.getElementById("btnEncrypt");
+    const btnDecrypt = document.getElementById("btnDecrypt");
+    const btnCopy = document.getElementById("btnCopy");
+    const btnBinaryToText = document.getElementById("btnBinaryToText");
+
+    // Get reference to spinner
+    const spinner = document.getElementById("spinner");
+
+    // Function to show spinner
+    function showSpinner() {
+      spinner.style.display = "block";
+    }
+
+    // Function to hide spinner
+    function hideSpinner() {
+      spinner.style.display = "none";
+    }
+
+    // Function to process text with spinner
+    function processText(callback) {
+      showSpinner();
+      setTimeout(() => {
+        callback();
+        hideSpinner();
+      }, 500); // Simulate processing delay
+    }
+
+    // Function: Convert text to binary (8-bit per character)
+    function textToBinary(text) {
+      return text.split("")
+                 .map(char => char.charCodeAt(0).toString(2).padStart(8, "0"))
+                 .join(" ");
+    }
+
+    // Function: Encrypt text using Base64 encoding
+    function encryptText(text) {
+      try {
+        return btoa(text);
+      } catch (err) {
+        return "Encryption error: Invalid input.";
+      }
+    }
+
+    // Function: Decrypt text using Base64 decoding
+    function decryptText(text) {
+      try {
+        return atob(text);
+      } catch (err) {
+        return "Decryption error: Invalid input.";
+      }
+    }
+
+    // Function: Convert binary to text
+    function binaryToText(binary) {
+      return binary.split(" ")
+                   .map(bin => String.fromCharCode(parseInt(bin, 2)))
+                   .join("");
+    }
+
+    // Toggle green mode when "toggleGreen" is typed exactly in the textarea
+    inputText.addEventListener("input", () => {
+      const normalized = inputText.value.trim().toLowerCase();
+      if (normalized === "togglegreen") {
+        isGreenMode = !isGreenMode;
+        document.body.classList.toggle("green-mode", isGreenMode);
+        inputText.value = ""; // Clear the textarea after toggle
+      }
+    });
+
+    // Bind button events for processing text with spinner
+    btnBinary.addEventListener("click", () => {
+      processText(() => {
+        const text = inputText.value;
+        outputEl.textContent = text.length > 0 ? textToBinary(text) : "Please enter some text.";
+      });
+    });
+
+    btnEncrypt.addEventListener("click", () => {
+      processText(() => {
+        const text = inputText.value;
+        outputEl.textContent = text.length > 0 ? encryptText(text) : "Please enter some text.";
+      });
+    });
+
+    btnDecrypt.addEventListener("click", () => {
+      processText(() => {
+        const text = inputText.value;
+        outputEl.textContent = text.length > 0 ? decryptText(text) : "Please enter some text.";
+      });
+    });
+
+    btnBinaryToText.addEventListener("click", () => {
+      processText(() => {
+        const text = inputText.value;
+        outputEl.textContent = text.length > 0 ? binaryToText(text) : "Please enter some text.";
+      });
+    });
+
+    // Copy output to clipboard with spinner
+    btnCopy.addEventListener("click", () => {
+      processText(() => {
+        const text = outputEl.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          alert('Output copied to clipboard!');
+        }).catch(err => {
+          alert('Failed to copy output: ', err);
+        });
+      });
+    });
+
+    // Function to toggle dark mode
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+      // Disable color grading controls in dark mode
+      const colorControls = document.querySelector('.color-controls');
+      colorControls.style.display = document.body.classList.contains('dark-mode') ? 'none' : 'flex';
+    }
+
+    // Add event listener to new dark mode toggle
+    document.getElementById("checkbox").addEventListener("change", toggleDarkMode);
+
+    // Get references to color inputs
+    const color1 = document.getElementById("color1");
+    const color2 = document.getElementById("color2");
+
+    // Function to update background gradient
+    function updateBackgroundGradient() {
+      const gradient = `linear-gradient(135deg, ${color1.value}, ${color2.value})`;
+      document.documentElement.style.setProperty('--normal-bg', gradient);
+    }
+
+    // Add event listeners to color inputs
+    color1.addEventListener("input", updateBackgroundGradient);
+    color2.addEventListener("input", updateBackgroundGradient);
+
+    // Initialize background gradient
+    updateBackgroundGradient();
+  </script>
+</body>
+</html>
